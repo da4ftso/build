@@ -59,8 +59,8 @@ application_name="Wireshark"
 
 #Two download URLs, one for Apple silicon, one for Intel
 #Supports either both .dmg or both .zip downloads that contain a .app
-apple_download="https://2.na.dl.wireshark.org/osx/Wireshark%204.1.1%20Arm%2064.dmg"
-intel_download="https://2.na.dl.wireshark.org/osx/Wireshark%204.1.1%20Intel%2064.dmg"
+apple_download="https://2.na.dl.wireshark.org/osx/Wireshark%204.2.0%20Arm%2064.dmg"
+intel_download="https://2.na.dl.wireshark.org/osx/Wireshark%204.2.0%20Intel%2064.dmg"
 
 #Code signature values will be compared against downloaded .apps to confirm security 
 #If left blank, missing entries will be reported at runtime, and reported values reported from above downloads 
