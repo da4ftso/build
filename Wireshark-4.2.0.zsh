@@ -1,4 +1,6 @@
 #!/bin/zsh
+# setopt xtrace
+
 ###################################################################################################
 # Created by Noah Anderson | se@kandji.io | Kandji, Inc. | Systems Engineering
 ###################################################################################################
@@ -71,7 +73,7 @@ intel_download="https://2.na.dl.wireshark.org/osx/Wireshark%204.2.0%20Intel%2064
 #Developer ID authority: /usr/bin/codesign -dvv "/Applications/EXAMPLE.app" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs
 #Team Identifier: /usr/bin/codesign -dvv "/Applications/EXAMPLE.app" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2
 
-dev_id_authority='Wireshark Foundation, Inc. (7Z6EMTD2C6)'
+dev_id_authority='Wireshark Foundation (7Z6EMTD2C6)'
 team_identifier='7Z6EMTD2C6'
 
 # NOTE: By default, script will only build PKG if both Intel + Apple silicon .apps have identical versions and bundle identifiers
@@ -120,6 +122,9 @@ if (( ${opts[(I)(-n|--nomatch)]} )); then
     printf "Setting match requirement to false for this run..."
     match_versions=false
 fi
+
+# match_versions=false
+
 
 ############################
 ##########FUNCTIONS#########
@@ -175,7 +180,7 @@ function variable_assignments()
 ##############################################
 function name_stuff() {
     #Temp build directories for package creation
-    tmp_build_dir="/tmp/${application_name}_Universal_Build"
+    tmp_build_dir="${application_name}_Universal_Build"
     tmp_build_dir_apple="${tmp_build_dir}/Apple"
     tmp_build_dir_intel="${tmp_build_dir}/Intel"
     tmp_build_dir_scripts="${tmp_build_dir}/Scripts"
@@ -493,10 +498,10 @@ function get_app_name_arch() {
 function populate_security() {
 
     #Populate Signing Authority and TeamID values
-    apple_dev_authority=$(/usr/bin/codesign -dvv "${tmp_build_dir_apple}/${app_name}" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs)
-    intel_dev_authority=$(/usr/bin/codesign -dvv "${tmp_build_dir_intel}/${app_name}" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs)
-    apple_teamid=$(/usr/bin/codesign -dvv "${tmp_build_dir_apple}/${app_name}" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2)
-    intel_teamid=$(/usr/bin/codesign -dvv "${tmp_build_dir_intel}/${app_name}" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2)
+    apple_dev_authority=$(/usr/bin/codesign -dvv "${tmp_build_dir_apple}/${app_name}" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs )
+    intel_dev_authority=$(/usr/bin/codesign -dvv "${tmp_build_dir_intel}/${app_name}" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs )
+    apple_teamid=$(/usr/bin/codesign -dvv "${tmp_build_dir_apple}/${app_name}" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2 )
+    intel_teamid=$(/usr/bin/codesign -dvv "${tmp_build_dir_intel}/${app_name}" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2 )
 
     #If there is a mismatch with known good values, our validate_security function below will catch it
     if [[ "${apple_teamid}" == "${intel_teamid}" ]] && [[ "${apple_dev_authority}" == "${intel_dev_authority}" ]]; then
