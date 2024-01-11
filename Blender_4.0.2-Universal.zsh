@@ -48,8 +48,8 @@ application_name="Blender"
 
 # Two download URLs, one for Apple silicon, one for Intel
 # Supports either both .dmg or both .zip downloads that contain a .app
-apple_download="https://mirror.clarkson.edu/blender/release/Blender3.6/blender-3.6.5-macos-arm64.dmg"
-intel_download="https://download.blender.org/release/Blender3.6/blender-3.6.5-macos-x64.dmg"
+apple_download="https://www.blender.org/download/release/Blender4.0/blender-4.0.2-macos-arm64.dmg"
+intel_download="https://www.blender.org/download/release/Blender4.0/blender-4.0.2-macos-x64.dmg"
 
 # Code signature values will be compared against downloaded .apps to confirm security 
 # If left blank, missing entries will be reported at runtime, and reported values reported from above downloads 
