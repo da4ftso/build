@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# 1.2 - loop through $1/Contents/MacOS and find the executable that will return a value for arch type
+#       ie iTerm2.app contains 3 executables, each one is universal.
+#  so a previous thought was this little gem:
+#       /usr/bin/lipo -archs $(ls "${f}"/Contents/MacOS/*|head -n 1)
+#  some apps may contain a .bundle in .app/Contents/MacOS though, and if that gets listed first we don't
+#       get a value for arch type.
+#  so instead, we're going to loop through that dir inside the app bundle until we get a value returned
+#  but this is obviously incomplete and prone to errors.
+#   
+
 ###############################################################################
 #   Copyright 2017 Benjamin Moralez                                           #
 #                                                                             #
@@ -49,6 +59,15 @@ done
 
 open "${WORKING_DIRECTORY}"
 
-/usr/bin/osascript -e 'tell application "Jamf Admin" to open'
+# ping the JSS, open Jamf Admin if available
+# add a sanity check about the plist and a value from the plist
+
+# host=$(defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url | sed -e 's/https:\/\///' -e 's/\/.*//' -e 's/:.*//')
+# ping -c 1 "${host}" > /dev/null
+#
+# if [ $? -eq 0 ]; then
+#	/usr/bin/osascript -e 'tell application "Jamf Admin" to open'
+# fi
+
 
 exit 0
