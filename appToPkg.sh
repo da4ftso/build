@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# 1.3 - print some more relevant details about the app
 # 1.2 - loop through $1/Contents/MacOS and find the executable that will return a value for arch type
 #       ie iTerm2.app contains 3 executables, each one is universal.
 #  so a previous thought was this little gem:
@@ -50,10 +51,19 @@ function generatePKG() {
     /usr/bin/productbuild --component "${f}" /Applications "${WORKING_DIRECTORY}/${PKG_NAME}"
 }
 
+function info() {
+echo "Short version:  " ${APP_VERSION}
+echo "Long version:   " $( defaults read "${f}/Contents/Info.plist" CFBundleVersion )
+echo "Bundle ID:      " $( defaults read "${f}/Contents/Info.plist" CFBundleIdentifier )
+echo "Developer ID:   " $( /usr/bin/codesign -dvv "${f}" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs )
+echo "Team ID:        " $( /usr/bin/codesign -dvv "${f}" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2 )
+}
+
 for f in "$@"; do
     setVariables
     makeContainers
     gatherICNS
+    info
     generatePKG
 done
 
