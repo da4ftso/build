@@ -91,7 +91,7 @@ function prev_files() {
 }
 for f in "$@"; do
     setVariables
-    prev_files
+    # prev_files
     makeContainers
     gatherICNS
     info
