@@ -18,6 +18,15 @@
 # Has support for .zip or .dmg files that contain .apps to be placed in /Applications
 #
 ###################################################################################################
+# Usage
+###################################################################################################
+#
+# Run the below command; a PKG will be created in the directory from where the script is executed
+#
+# /bin/zsh /path/to/create_universal_package.zsh
+#
+###################################################################################################
+###################################################################################################
 # License Information
 ###################################################################################################
 # Copyright 2022 Kandji, Inc.
@@ -40,47 +49,52 @@
 #
 ###################################################################################################
 
-# VARIABLES
+############################
+##########VARIABLES#########
+############################
 
-# Name of the app
-# This will be used to name the built PKG
+#Name of the app
+#This will be used to name the built PKG
 application_name="Blender"
 
-# Two download URLs, one for Apple silicon, one for Intel
-# Supports either both .dmg or both .zip downloads that contain a .app
-apple_download="https://www.blender.org/download/release/Blender4.0/blender-4.0.2-macos-arm64.dmg"
-intel_download="https://www.blender.org/download/release/Blender4.0/blender-4.0.2-macos-x64.dmg"
+#Two download URLs, one for Apple silicon, one for Intel
+#Supports either both .dmg or both .zip downloads that contain a .app
+apple_download="https://mirror.clarkson.edu/blender/release/Blender4.2/blender-4.2.0-macos-arm64.dmg"
+intel_download="https://mirror.clarkson.edu/blender/release/Blender4.2/blender-4.2.0-macos-x64.dmg"
 
-# Code signature values will be compared against downloaded .apps to confirm security 
-# If left blank, missing entries will be reported at runtime, and reported values reported from above downloads 
-# Undefined vars can be populated interactively from reported values when prompted from this script
+#Code signature values will be compared against downloaded .apps to confirm security 
+#If left blank, missing entries will be reported at runtime, and reported values reported from above downloads 
+#Undefined vars can be populated interactively from reported values when prompted from this script
 
-# To hardcode variables, signatures can be determined in advance by running the following commands against the desired .app:
+#To hardcode variables, signatures can be determined in advance by running the following commands against the desired .app:
 
-# Developer ID authority: /usr/bin/codesign -dvv "/Applications/EXAMPLE.app" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs
-# Team Identifier: /usr/bin/codesign -dvv "/Applications/EXAMPLE.app" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2
+#Developer ID authority: /usr/bin/codesign -dvv "/Applications/EXAMPLE.app" 2>&1 | /usr/bin/grep "Developer ID Application" | /usr/bin/cut -d ':' -f2 | /usr/bin/xargs
+#Team Identifier: /usr/bin/codesign -dvv "/Applications/EXAMPLE.app" 2>&1 | /usr/bin/grep "TeamIdentifier" | /usr/bin/cut -d '=' -f2
 
-dev_id_authority='Stichting Blender Foundation (68UA947AUU)'
-team_identifier='68UA947AUU'
+dev_id_authority="Stichting Blender Foundation (68UA947AUU)"
+team_identifier="68UA947AUU"
 
 # NOTE: By default, script will only build PKG if both Intel + Apple silicon .apps have identical versions and bundle identifiers
-# To disable this functionality, (e.g. for apps with differing version #s between archs), set the below to false
-# Can also leave blank to populate the variable at runtime
-# If disabled, the version associated with the built PKG will be that of the Apple silicon .app
+#To disable this functionality, (e.g. for apps with differing version #s between archs), set the below to false
+#Can also leave blank to populate the variable at runtime
+#If disabled, the version associated with the built PKG will be that of the Apple silicon .app
 # NOTE: Running this script with flag --nomatch will only set the value for the runtime; to permanently disable matching, set the below to false
 match_versions=true
 
-# DO NOT MODIFY
+#################################################################################################
+##########################################DO NOT MODIFY##########################################
+#################################################################################################
 
 script_version=1.0.0
 
-# ARGUMENTS
+###########################
+#########ARGUMENTS#########
+###########################
 
-
-# Set arguments with zparseopts
+#Set arguments with zparseopts
 zparseopts -D -E -a opts h -help n -nomatch v -verbose -labels+:=label_args l+:=label_args
 
-# Set args for help
+#Set args for help
 if (( ${opts[(I)(-h|--help)]} )); then
     printf "\nUsage: ./create_universal_package.zsh [--help|--nomatch|--verbose]\n"
     printf "\n\n###############\n#####ABOUT#####\n###############\n\n"
@@ -96,18 +110,20 @@ if (( ${opts[(I)(-h|--help)]} )); then
   exit 0
 fi
 
-# Set args for verbosity
+#Set args for verbosity
 if (( ${opts[(I)(-v|--verbose)]} )); then
     set -x
 fi
 
-# Set args to disable version/bundle ID match validation across archs 
+#Set args to disable version/bundle ID match validation across archs 
 if (( ${opts[(I)(-n|--nomatch)]} )); then
     printf "Setting match requirement to false for this run..."
     match_versions=false
 fi
 
-# FUNCTIONS
+############################
+##########FUNCTIONS#########
+############################
 
 ##############################################
 # Checks if vars passed to func are defined
@@ -194,9 +210,9 @@ function name_stuff() {
 ##############################################
 function prechecks() {
 
-    # Ensure variables are defined
-    # If not, prompt to populate them interactively
-    # Exit 1 if any remain undefined post-prompt
+    #Ensure variables are defined
+    #If not, prompt to populate them interactively
+    #Exit 1 if any remain undefined post-prompt
     variable_assignments application_name apple_download intel_download match_versions
 
     #Populate variables for files and names given ${application_name}
@@ -623,19 +639,19 @@ function stage_preinstall() {
     /bin/cat >"${tmp_build_dir_scripts}/preinstall" <<EOF
 #!/bin/zsh
 
-# Populate PKG names
+#Populate PKG names
 app_name="${app_name}"
 EOF
 
-# Write out the remainder of the preinstall and do not expand vars
+#Write out the remainder of the preinstall and do not expand vars
 /bin/cat >>"${tmp_build_dir_scripts}/preinstall" <<"EOF"
 apple_app="Apple/${app_name}"
 intel_app="Intel/${app_name}"
 
-# Get local directory
+#Get local directory
 local_dir=$(/usr/bin/dirname ${0})
 
-# Identify Mac processor type
+#Identify Mac processor type
 intel_check=$(/usr/sbin/sysctl -n machdep.cpu.brand_string | /usr/bin/grep -oi "Intel")
 
 if [[ -n "${intel_check}" ]]; then
@@ -644,7 +660,7 @@ else
     /bin/cp -pR "${local_dir}/${apple_app}" "/Applications"
 fi
 
-# Touch the .app in /Applications so it refreshes the icon cache
+#Touch the .app in /Applications so it refreshes the icon cache
 /usr/bin/touch "/Applications/${app_name}"
 
 exit 0
@@ -709,8 +725,9 @@ function main() {
     build_universal_app
 }
 
-
-# BUILD
+###############
+#####BUILD#####
+###############
 
 main
 
