@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
+# 1.5 - set env pipefail
 # 1.4 - back up existing files to .bak.ext
 # 1.3 - print some more relevant details about the app
 # 1.2 - loop through $1/Contents/MacOS and find the executable that will return a value for arch type
